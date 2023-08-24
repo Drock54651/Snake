@@ -3,6 +3,8 @@ import tkinter as tk
 from settings import *
 from random import randint
 
+#NOTE: for the tuple positions of the snake, its col,row
+#NOTE: not row, col
 class Game(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -19,9 +21,11 @@ class Game(ctk.CTk):
         #TODO
         #* Snake
         self.snake = [START_POS, 
-                      (START_POS[0] - 1, START_POS[1]), 
-                      (START_POS[0] - 2, START_POS[1])] #! each tuple takes in col and row
-                                                        #! so each tuple represents a segment of the snake
+                      (START_POS[0] - 1, START_POS[1]), #! each tuple takes in col and row
+                      (START_POS[0] - 2, START_POS[1])] #! so each tuple represents a segment of the snake
+                                                       
+        self.direction = DIRECTIONS['right']
+        self.bind('<Key>', self.get_input)
 
 
         #* Apple
@@ -29,7 +33,40 @@ class Game(ctk.CTk):
 
         #*Draw logic
         self.draw_frames = []
+        self.animate()
+
+
+        #*Run
+        self.mainloop()
+
+    def get_input(self, event): 
+        #print(event) #! can get the keycode for arrow input
+        match event.keycode:
+            # case 37: print('left')
+            # case 38: print('up')
+            # case 39: print('right')
+            # case 40: print('down')
+            case 37: self.direction = DIRECTIONS['left']
+            case 38: self.direction = DIRECTIONS['up']
+            case 39: self.direction = DIRECTIONS['right']
+            case 40: self.direction = DIRECTIONS['down']
+        #print(self.direction)
+
+
+
+    def animate(self):#! create new head = old head + direction, remove last segment of the snake
+        #NOTE: remember is col,row
+
+        new_head = (self.snake[0][0] + self.direction[0], self.snake[0][1] + self.direction[1]) #! self.snake[0][0] get the first tuple, then the col, and adds col from input
+        self.snake.insert(0, new_head)
+
+        #* Removing last part of snake
+        self.snake.pop()
+
         self.draw()
+
+        self.after(250, self.animate)
+
 
     def place_apple(self): #! creates a random column and row position for the apple
 
@@ -38,6 +75,15 @@ class Game(ctk.CTk):
         
 
     def draw(self):
+
+        #TODO: clear current placed frames and clear the draw frames list
+        if self.draw_frames:
+
+            for frame, pos in self.draw_frames:
+                frame.grid_forget()
+                
+            self.draw_frames.clear() 
+
 
         apple_frame = ctk.CTkFrame(self, fg_color = APPLE_COLOR)
         self.draw_frames.append((apple_frame, self.apple_pos))
@@ -56,8 +102,7 @@ class Game(ctk.CTk):
             frame.grid(column = pos[0], row = pos[1])
 
 
-        #*Run
-        self.mainloop()
+        
 
 
 Game()
