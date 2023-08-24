@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from settings import *
 from random import randint
+from sys import exit
 
 #NOTE: for the tuple positions of the snake, its col,row
 #NOTE: not row, col
@@ -46,10 +47,27 @@ class Game(ctk.CTk):
             # case 38: print('up')
             # case 39: print('right')
             # case 40: print('down')
-            case 37: self.direction = DIRECTIONS['left']
-            case 38: self.direction = DIRECTIONS['up']
-            case 39: self.direction = DIRECTIONS['right']
-            case 40: self.direction = DIRECTIONS['down']
+            case 37: 
+                if self.direction != DIRECTIONS['right']:
+                    self.direction = DIRECTIONS['left']
+                else:
+                    self.direction
+
+            case 38: 
+                if self.direction != DIRECTIONS['down']:
+                    self.direction = DIRECTIONS['up']
+                else:
+                    self.direction
+            case 39: 
+                if self.direction != DIRECTIONS['left']:
+                    self.direction = DIRECTIONS['right']
+                else:
+                    self.direction
+            case 40: 
+                if self.direction != DIRECTIONS['up']:
+                    self.direction = DIRECTIONS['down']
+                else:
+                    self.direction
         #print(self.direction)
 
 
@@ -60,17 +78,37 @@ class Game(ctk.CTk):
         new_head = (self.snake[0][0] + self.direction[0], self.snake[0][1] + self.direction[1]) #! self.snake[0][0] get the first tuple, then the col, and adds col from input
         self.snake.insert(0, new_head)
 
-        #* Removing last part of snake
-        self.snake.pop()
 
+
+        #* Apple collision
+        #TODO: figure out when the snake collides with the apple
+        if self.snake[0] == self.apple_pos:
+            self.place_apple()
+       
+        else: #! Removing last part of snake
+            self.snake.pop()
+
+        self.check_game_over()
+
+        #* Drawing
         self.draw()
-
         self.after(250, self.animate)
+
+    def check_game_over(self): #! hits border or its tail
+        snake_head = self.snake[0]
+        print(snake_head)
+        if snake_head[0] >= RIGHT_LIMIT or snake_head[0] <= LEFT_LIMIT or snake_head[1] <= TOP_LIMIT \
+            or snake_head[1] >= BOTTOM_LIMIT or snake_head in self.snake[1:]:
+
+            print('game over')
+            self.destroy()
+            exit()
+
 
 
     def place_apple(self): #! creates a random column and row position for the apple
 
-        self.apple_pos = (randint(0, FIELDS[0] - 1), randint(0, FIELDS[1] - 1)) #! -1 as ranint includes the number
+        self.apple_pos = (randint(0, FIELDS[0] - 1), randint(0, FIELDS[1] - 1)) #! -1 as randint includes the number
                                                                                 #! since theres 20 columns, apple should be placed from 0-19
         
 
