@@ -3,7 +3,7 @@ import tkinter as tk
 from settings import *
 from random import randint
 from sys import exit
-
+import time
 #NOTE: for the tuple positions of the snake, its col,row
 #NOTE: not row, col
 class Game(ctk.CTk):
@@ -18,8 +18,7 @@ class Game(ctk.CTk):
         
         row = list(range(FIELDS[1]))
         self.rowconfigure(row, weight = 1, uniform = 'a')
-        
-        #TODO
+    
         #* Snake
         self.snake = [START_POS, 
                       (START_POS[0] - 1, START_POS[1]), #! each tuple takes in col and row
@@ -40,48 +39,46 @@ class Game(ctk.CTk):
         #*Run
         self.mainloop()
 
-    def get_input(self, event): 
-        #print(event) #! can get the keycode for arrow input
-        match event.keycode:
-            # case 37: print('left')
-            # case 38: print('up')
-            # case 39: print('right')
-            # case 40: print('down')
-            case 37: 
-                if self.direction != DIRECTIONS['right']:
+    def get_input(self, event): #! arrow key input
+        print(event)
+        match event.keycode: #! each keycode is mapped to a specific arrow key
+           
+            case 37: #! left
+                if self.direction != DIRECTIONS['right']: #! prevent snake from going backwards into itself
                     self.direction = DIRECTIONS['left']
                 else:
                     self.direction
-
-            case 38: 
+                    
+            case 38: #! up
                 if self.direction != DIRECTIONS['down']:
                     self.direction = DIRECTIONS['up']
                 else:
                     self.direction
-            case 39: 
+
+            case 39: #! right
                 if self.direction != DIRECTIONS['left']:
                     self.direction = DIRECTIONS['right']
                 else:
                     self.direction
-            case 40: 
+
+            case 40: #! down
                 if self.direction != DIRECTIONS['up']:
                     self.direction = DIRECTIONS['down']
                 else:
                     self.direction
-        #print(self.direction)
 
 
 
     def animate(self):#! create new head = old head + direction, remove last segment of the snake
         #NOTE: remember is col,row
 
-        new_head = (self.snake[0][0] + self.direction[0], self.snake[0][1] + self.direction[1]) #! self.snake[0][0] get the first tuple, then the col, and adds col from input
+        new_head = (self.snake[0][0] + self.direction[0], self.snake[0][1] + self.direction[1]) #! self.snake[0][0] get the first tuple(head), then the col/row, and adds col/row from input
         self.snake.insert(0, new_head)
 
 
 
         #* Apple collision
-        #TODO: figure out when the snake collides with the apple
+
         if self.snake[0] == self.apple_pos:
             self.place_apple()
        
@@ -96,11 +93,12 @@ class Game(ctk.CTk):
 
     def check_game_over(self): #! hits border or its tail
         snake_head = self.snake[0]
-        print(snake_head)
-        if snake_head[0] >= RIGHT_LIMIT or snake_head[0] <= LEFT_LIMIT or snake_head[1] <= TOP_LIMIT \
-            or snake_head[1] >= BOTTOM_LIMIT or snake_head in self.snake[1:]:
+        
+        if snake_head[0] >= RIGHT_LIMIT or snake_head[0] <= LEFT_LIMIT or snake_head[1] < TOP_LIMIT \
+            or snake_head[1] > BOTTOM_LIMIT or snake_head in self.snake[1:]:
 
-            print('game over')
+            print('Game Over!')
+            
             self.destroy()
             exit()
 
@@ -114,7 +112,7 @@ class Game(ctk.CTk):
 
     def draw(self):
 
-        #TODO: clear current placed frames and clear the draw frames list
+    
         if self.draw_frames:
 
             for frame, pos in self.draw_frames:
@@ -126,7 +124,7 @@ class Game(ctk.CTk):
         apple_frame = ctk.CTkFrame(self, fg_color = APPLE_COLOR)
         self.draw_frames.append((apple_frame, self.apple_pos))
 
-        for index, pos in enumerate(self.snake): #! enumerate gets index for where i am in the loop
+        for index, pos in enumerate(self.snake): 
         
             if index != 0:
                 color = SNAKE_BODY_COLOR
